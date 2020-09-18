@@ -1,6 +1,8 @@
 from aiogram import types
 from misc import dp
 
+from . import subs
+
 # Команда активации подписки
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):    
@@ -14,16 +16,6 @@ async def start(message: types.Message):
     else:
         await message.answer("Добро пожаловать в тестовый бот для Habr и StopGame")
 
-# Команда активации подписки
-@dp.message_handler(commands=['subscribe'])
-async def subscribe(message: types.Message):
-    name = None
-    if len(message.text) > 10:
-        name = message.text[11:]
-    if name: 
-        await message.answer("Вы успешно подписались на рассылку! По имени: "+name)
-    else:
-        await message.answer("На кого хотите подписаться? Укажите имя:")
 
 # Команда отписки
 @dp.message_handler(commands=['unsubscribe'])
