@@ -2,20 +2,7 @@ from aiogram import types
 from misc import dp
 
 from . import subs
-
-# Команда активации подписки
-@dp.message_handler(commands=['start'])
-async def start(message: types.Message):    
-    if len(message.text) > len("/start "): 
-        message.text = message.text[7:]
-        #await message.answer("Реферальный текст: "+message.text)
-        if message.text[0] == "_":
-            if message.text.startswith("_subscribe"):
-                message.text = "/" + message.text[1:10] + " " + message.text[11:]
-                await subscribe(message)
-    else:
-        await message.answer("Добро пожаловать в тестовый бот для Habr и StopGame")
-
+from . import start
 
 # Команда отписки
 @dp.message_handler(commands=['unsubscribe'])
@@ -23,3 +10,11 @@ async def unsubscribe(message: types.Message):
     await message.answer("Вы успешно отписаны от рассылки.")
     await message.reply("Ну и ладно!")
 
+
+@dp.message_handler(commands="set_commands", state="*")
+async def cmd_set_commands(message: types.Message):
+    if message.from_user.id == 1234567:  # Подставьте сюда свой Telegram ID
+        commands = [types.BotCommand(command="/drinks", description="Заказать напитки"),
+                    types.BotCommand(command="/food", description="Заказать блюда")]
+        await bot.set_my_commands(commands)
+        await message.answer("Команды настроены.")
