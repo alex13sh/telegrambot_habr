@@ -13,9 +13,10 @@ from . import subs
 
 # Команда активации подписки
 @dp.message_handler(commands=['start'])
-async def start(message: types.Message):    
-    if len(message.text) > len("/start "): 
-        message.text = message.text[7:]
+async def start(message: types.Message):  
+    argument = message.get_args()
+    if argument: 
+        message.text = argument
         #await message.answer("Реферальный текст: "+message.text)
         if message.text[0] == "_":
             if message.text.startswith("_subscribe"):

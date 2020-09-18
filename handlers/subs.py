@@ -10,10 +10,9 @@ class OrderSubs(StatesGroup):
 # Команда активации подписки
 @dp.message_handler(commands='subscribe', state='*')
 async def subscribe(message: types.Message):
-    name = None
-    if len(message.text) > 10:
-        name = message.text[11:]
-    if name: 
+    argument = message.get_args()
+    if argument:
+        name = argument
         await message.answer("Вы успешно подписались на рассылку! По имени: "+name)
     else:
         await OrderSubs.waiting_for_select_website.set()
