@@ -77,11 +77,19 @@ async def subscribe_name(message: types.Message, state: FSMContext):  # обра
 @dp.message_handler(commands=['unsubscribe'])
 async def unsubscribe(message: types.Message):
     session = Session()
-    txt = ""
-    for (sub_name,) in session.query(BD_Subs.sub_name).filter_by(user_id=message.from_user.id): 
-        txt += "\n" + str(sub_name)
-    await message.answer("Вы успешно отписаны от рассылки сайта:" + txt)
-    q = session.query(BD_Subs).filter(BD_Subs.user_id == message.from_user.id)\
-    .delete()
-    session.commit()
-    await message.reply("Ну и ладно!")
+    if "reply_to_message" in message:
+        row_1 = session.query(BD_Subs_SMS).filter_by(sms_id=message["reply_to_message"]["message_id"]).all()[0]
+        print("Result subs_id:", row_1.subs_id)
+        row_2 = session.query(BD_Subs).filter_by(id=row_1.subs_id).all()[0]
+        await message.answer("Удалил подписку: "+row_2.sub_name)
+        session.delete(row_2)
+        session.delete(row_1)
+    else:
+        txt = ""
+        for (sub_name,) in session.query(BD_Subs.sub_name).filter_by(user_id=message.from_user.id): 
+            txt += "\n" + str(sub_name)
+        await message.answer("Вы успешно отписаны от рассылки сайта:" + txt)
+        q = session.query(BD_Subs).filter(BD_Subs.user_id == message.from_user.id)\
+        .delete()
+        session.commit()
+        await message.reply("Ну и ладно!")
