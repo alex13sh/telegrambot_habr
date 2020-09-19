@@ -5,6 +5,7 @@ from misc import dp
 #from parser.stopgame import StopGame
 from db import Base, Session
 from db import Column, Integer, String
+from . import start
 
 class BD_Subs(Base):
     __tablename__ = 'BD_Subs'
@@ -35,13 +36,13 @@ async def subscribe_website(message: types.Message, state: FSMContext):  # об�
     if website == "Habr":
         await state.update_data(website=website)
         await OrderSubs.next()
-        await message.answer("На кого хотите подписаться? Укажите имя:")
+        await message.answer("На кого хотите подписаться? Укажите имя:", reply_markup=start.ReplyKeyboardRemove())
     elif website == "StopGame":
         await state.finish()
         session = Session()
         session.add(BD_Subs(user_id=message.from_user.id, sub_name=f"{website}"))
         session.commit()
-        await message.answer(f"Вы успешно подписались на рассылку! На сайт {website}")
+        await message.answer(f"Вы успешно подписались на рассылку! На сайт {website}", reply_markup=start.kb_start)
     
 @dp.message_handler(state=OrderSubs.waiting_for_subs_name, content_types=types.ContentTypes.TEXT)
 async def subscribe_name(message: types.Message, state: FSMContext):  # обратите внимание, есть второй аргумент
@@ -51,7 +52,7 @@ async def subscribe_name(message: types.Message, state: FSMContext):  # обра
     session = Session()
     session.add(BD_Subs(user_id=message.from_user.id, sub_name=f"{website}_{name}"))
     session.commit()
-    await message.answer(f"Вы успешно подписались на рассылку! На сайт {website} По имени: {name}")
+    await message.answer(f"Вы успешно подписались на рассылку! На сайт {website} По имени: {name}", reply_markup=start.kb_start)
     await state.finish()
     
 # Команда отписки

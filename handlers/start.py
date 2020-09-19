@@ -17,7 +17,7 @@ from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
 
-start_kb = ReplyKeyboardMarkup(resize_keyboard=True)\
+kb_start = ReplyKeyboardMarkup(resize_keyboard=True)\
     .row(KeyboardButton('/subscribe')
        , KeyboardButton('/unsubscribe'))
 
@@ -36,7 +36,7 @@ async def start(message: types.Message):
                 await subs.subscribe(message)
     else:
         await message.answer("Добро пожаловать в тестовый бот для Habr и StopGame"
-            , reply_markup=start_kb) 
+            , reply_markup=kb_start) 
 
     user_id = message.from_user.id
     print("from_user:", message.from_user)
