@@ -58,6 +58,11 @@ async def subscribe_name(message: types.Message, state: FSMContext):  # обра
 @dp.message_handler(commands=['unsubscribe'])
 async def unsubscribe(message: types.Message):
     session = Session()
-    for sub_name in session.query(BD_Subs.sub_name).filter_by(user_id=message.from_user.id): 
-        await message.answer("Вы успешно отписаны от рассылки сайта:" + str(sub_name))
+    txt = ""
+    for (sub_name,) in session.query(BD_Subs.sub_name).filter_by(user_id=message.from_user.id): 
+        txt += "\n" + str(sub_name)
+    await message.answer("Вы успешно отписаны от рассылки сайта:" + txt)
+    q = session.query(BD_Subs).filter(BD_Subs.user_id == message.from_user.id)\
+    .delete()
+    session.commit()
     await message.reply("Ну и ладно!")
