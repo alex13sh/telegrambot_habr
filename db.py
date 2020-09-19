@@ -6,7 +6,7 @@ Base = declarative_base()
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker 
 
-engine = create_engine('sqlite:///:memory:', echo=True)
+engine = create_engine('sqlite:///mydb.db', echo=True)
 Session = scoped_session(sessionmaker(bind=engine))
 def init_base():
     Base.metadata.create_all(engine)
