@@ -17,8 +17,10 @@ from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
 
-kb_start = ReplyKeyboardMarkup(resize_keyboard=True)\
+kb_start_1 = ReplyKeyboardMarkup(resize_keyboard=True)\
     .row('/subscribe', '/unsubscribe', '/list_sub')
+kb_start = ReplyKeyboardMarkup(resize_keyboard=True)\
+    .row('Подписаться', 'Отписаться', 'Список подписок')
 
 from . import subs
 
@@ -49,4 +51,5 @@ async def start(message: types.Message):
         ))
         session.commit()
     except:
+        session.rollback()
         print("Пользователь уже был добавлен")
