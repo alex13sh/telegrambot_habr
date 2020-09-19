@@ -4,12 +4,6 @@ from misc import dp
 from . import subs
 from . import start
 
-# Команда отписки
-@dp.message_handler(commands=['unsubscribe'])
-async def unsubscribe(message: types.Message):
-    await message.answer("Вы успешно отписаны от рассылки.")
-    await message.reply("Ну и ладно!")
-
 
 @dp.message_handler(commands="set_commands", state="*")
 async def cmd_set_commands(message: types.Message):

@@ -2,6 +2,8 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from misc import dp
+#from parser.stopgame import StopGame
+from db import BD_Subs, Session
 
 class OrderSubs(StatesGroup):
     waiting_for_select_website = State()
@@ -23,14 +25,32 @@ async def subscribe(message: types.Message):
 @dp.message_handler(state=OrderSubs.waiting_for_select_website, content_types=types.ContentTypes.TEXT)
 async def subscribe_website(message: types.Message, state: FSMContext):  # обратите внимание, есть второй аргумент
     website = message.text
-    await state.update_data(website=website)
-    await OrderSubs.next()
-    await message.answer("На кого хотите подписаться? Укажите имя:")
+    if website == "Habr":
+        await state.update_data(website=website)
+        await OrderSubs.next()
+        await message.answer("На кого хотите подписаться? Укажите имя:")
+    elif website == "StopGame":
+        await state.finish()
+        session = Session()
+        session.add(BD_Subs(user_id=message.from_user.id, sub_name=f"{website}"))
+        session.commit()
+        await message.answer(f"Вы успешно подписались на рассылку! На сайт {website}")
     
 @dp.message_handler(state=OrderSubs.waiting_for_subs_name, content_types=types.ContentTypes.TEXT)
 async def subscribe_name(message: types.Message, state: FSMContext):  # обратите внимание, есть второй аргумент
     data = await state.get_data()
     website = data["website"]
     name = message.text
+    session = Session()
+    session.add(BD_Subs(user_id=message.from_user.id, sub_name=f"{website}_{name}"))
+    session.commit()
     await message.answer(f"Вы успешно подписались на рассылку! На сайт {website} По имени: {name}")
     await state.finish()
+    
+# Команда отписки
+@dp.message_handler(commands=['unsubscribe'])
+async def unsubscribe(message: types.Message):
+    session = Session()
+    for sub_name in session.query(BD_Subs.sub_name).filter_by(user_id=message.from_user.id): 
+        await message.answer("Вы успешно отписаны от рассылки сайта:" + str(sub_name))
+    await message.reply("Ну и ладно!")
