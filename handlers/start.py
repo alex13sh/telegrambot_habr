@@ -18,8 +18,7 @@ from aiogram.types import ReplyKeyboardRemove, \
     InlineKeyboardMarkup, InlineKeyboardButton
 
 kb_start = ReplyKeyboardMarkup(resize_keyboard=True)\
-    .row(KeyboardButton('/subscribe')
-       , KeyboardButton('/unsubscribe'))
+    .row('/subscribe', '/unsubscribe', '/list_sub')
 
 from . import subs
 

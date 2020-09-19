@@ -93,3 +93,11 @@ async def unsubscribe(message: types.Message):
         .delete()
         session.commit()
         await message.reply("Ну и ладно!")
+
+@dp.message_handler(commands=['list_sub'])
+async def list_sub(message: types.Message):
+    session = Session()
+    txt = ""
+    for (sub_name,) in session.query(BD_Subs.sub_name).filter_by(user_id=message.from_user.id): 
+        txt += "\n" + str(sub_name)
+    await message.answer("Список ваших подписок:" + txt)
