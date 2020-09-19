@@ -1,6 +1,18 @@
 from aiogram import types
 from misc import dp
 
+from db import Base, Session
+from db import Column, Integer, String, Boolean, DateTime
+import datetime
+
+class BD_Users(Base):
+    __tablename__ = 'BD_Users'
+    user_id = Column(Integer, primary_key=True)
+    user_name = Column(String(255))
+    time_start = Column(DateTime()) 
+    time_last = Column(DateTime()) 
+
+
 from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
@@ -25,3 +37,17 @@ async def start(message: types.Message):
     else:
         await message.answer("Добро пожаловать в тестовый бот для Habr и StopGame"
             , reply_markup=start_kb) 
+
+    user_id = message.from_user.id
+    print("from_user:", message.from_user)
+    try:
+        session = Session()
+        session.add(BD_Users(
+            user_id     = message.from_user.id,
+            user_name   = message.from_user.username,
+            time_start  = datetime.datetime.now(),
+            time_last   = datetime.datetime.now()
+        ))
+        session.commit()
+    except:
+        print("Пользователь уже был добавлен")
