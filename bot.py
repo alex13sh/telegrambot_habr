@@ -4,7 +4,8 @@
 from aiogram import executor
 from misc import dp
 import handlers
-
+import db
+db.init_base()
 
 # запускаем лонг поллинг
 if __name__ == '__main__':

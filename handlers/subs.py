@@ -3,8 +3,15 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from misc import dp
 #from parser.stopgame import StopGame
-from db import BD_Subs, Session
+from db import Base, Session
+from db import Column, Integer, String
 
+class BD_Subs(Base):
+    __tablename__ = 'BD_Subs'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    sub_name = Column(String(255)) 
+    
 class OrderSubs(StatesGroup):
     waiting_for_select_website = State()
     waiting_for_subs_name = State()
