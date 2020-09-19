@@ -80,12 +80,16 @@ async def subscribe_name(message: types.Message, state: FSMContext):  # обра
 async def unsubscribe(message: types.Message):
     session = Session()
     if "reply_to_message" in message:
-        row_1 = session.query(BD_Subs_SMS).filter_by(sms_id=message["reply_to_message"]["message_id"]).all()[0]
-        print("Result subs_id:", row_1.subs_id)
-        row_2 = session.query(BD_Subs).filter_by(id=row_1.subs_id).all()[0]
-        await message.answer("Удалил подписку: "+row_2.sub_name)
-        session.delete(row_2)
-        session.delete(row_1)
+        res = session.query(BD_Subs_SMS).filter_by(sms_id=message["reply_to_message"]["message_id"]).all()
+        if len(res) > 0:
+            row_1 = res[0]
+            print("Result subs_id:", row_1.subs_id)
+            row_2 = session.query(BD_Subs).filter_by(id=row_1.subs_id).all()[0]
+            await message.answer("Удалил подписку: "+row_2.sub_name)
+            session.delete(row_2)
+            session.delete(row_1)
+        else:
+            await message.answer("Я не нашёл подписку")
     else:
         txt = ""
         for (sub_name,) in session.query(BD_Subs.sub_name).filter_by(user_id=message.from_user.id): 
