@@ -114,15 +114,22 @@ from aiogram.types import InlineQuery, \
     InputTextMessageContent, InlineQueryResultArticle
 import hashlib
 
-@dp.inline_handler(lambda query: query.query == "#subs")
+def filter_query_subs(query):
+    if query.query.startswith("#subs"):
+        query.query = query.query[6:].lower()
+        return True
+    else: return False
+
+@dp.inline_handler(filter_query_subs)
 async def list_sub(inline_query: InlineQuery):
     session = Session()
-    text = inline_query.query
-    input_content = InputTextMessageContent(text)
+    _startwith = inline_query.query
+    print("_startwith:", _startwith)
     items = []
     for row in session.query(BD_Subs).filter_by(user_id=inline_query.from_user.id):
+        if not row.sub_name.lower().startswith(_startwith): continue
+        
         sub_name = row.sub_name
-        result_id: str = hashlib.md5(text.encode()).hexdigest()
         item = InlineQueryResultArticle(
             id=row.id,
             title=f'Result {sub_name}',
