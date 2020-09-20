@@ -1,6 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from misc import dp, bot
+from misc import dp, bot, LIST_SEARCH_TAGS
 #from parser.stopgame import StopGame
 from db import Base, Session
 from db import Column, Integer, String
@@ -132,6 +132,8 @@ async def list_sub(message: types.Message):
 from aiogram.types import InlineQuery, \
     InputTextMessageContent, InlineQueryResultArticle
 import hashlib
+
+LIST_SEARCH_TAGS.append("subs")
 
 def filter_query_subs(query):
     if query.query.startswith("#subs"):

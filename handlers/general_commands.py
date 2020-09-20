@@ -2,6 +2,7 @@ from aiogram import types
 from misc import dp
 
 from . import subs
+from . import inline_query_default
 from . import start
 
 
