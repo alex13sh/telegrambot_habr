@@ -4,7 +4,7 @@ from misc import dp, bot
 #from parser.stopgame import StopGame
 from db import Base, Session
 from db import Column, Integer, String
-from . import start
+from . import kb as start
 
 class BD_Subs(Base):
     __tablename__ = 'BD_Subs'
@@ -73,7 +73,21 @@ async def subscribe_name(message: types.Message, state: FSMContext):  # обра
         sms_id = sms["message_id"]
     )
     await state.finish()
-    
+ 
+# message.get_args()
+def filter_start_subs(message):
+    args = message.get_args()
+    if args and args.startswith("_subscribe="):
+        message.text = args[11:]
+        return True
+    else: return False
+
+@dp.message_handler(filter_start_subs, commands=['start']) #, text_startswith="start _subscribe=")
+async def subscribe_new(message: types.Message):  # обратите внимание, есть второй аргумент
+    website = message.text
+    new_subs(user_id=message.from_user.id, sub_name=f"{website}")
+    await message.answer(f"Вы успешно подписались на рассылку! На сайт {website}", reply_markup=start.kb_start)
+
 # Команда отписки
 @dp.message_handler(commands=['unsubscribe'])
 @dp.message_handler(lambda message: message.text == "Отписаться", content_types=types.ContentTypes.TEXT)
@@ -129,7 +143,6 @@ def filter_query_subs(query):
 async def list_sub(inline_query: InlineQuery):
     session = Session()
     _startwith = inline_query.query
-    print("_startwith:", _startwith)
     items = []
     for row in session.query(BD_Subs).filter_by(user_id=inline_query.from_user.id):
         if not row.sub_name.lower().startswith(_startwith): continue

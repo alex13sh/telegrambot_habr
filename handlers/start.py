@@ -22,22 +22,14 @@ kb_start = ReplyKeyboardMarkup(resize_keyboard=True)\
         .row('Подписаться', 'Отписаться')\
         .add('Список подписок')
 
-from . import subs
+from . import kb
 
 # Команда активации подписки
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):  
-    argument = message.get_args()
-    if argument: 
-        message.text = argument
-        #await message.answer("Реферальный текст: "+message.text)
-        if message.text[0] == "_":
-            if message.text.startswith("_subscribe"):
-                message.text = "/" + message.text[1:10] + " " + message.text[11:]
-                await subs.subscribe(message)
-    else:
-        await message.answer("Добро пожаловать в тестовый бот для Habr и StopGame"
-            , reply_markup=kb_start) 
+
+    await message.answer("Добро пожаловать в тестовый бот для Habr и StopGame"
+        , reply_markup=kb.kb_start) 
 
     user_id = message.from_user.id
     print("from_user:", message.from_user)
