@@ -11,8 +11,7 @@ class BD_Users(Base):
     user_name = Column(String(255))
     time_start = Column(DateTime()) 
     time_last = Column(DateTime()) 
-
-
+    
 from aiogram.types import ReplyKeyboardRemove, \
     ReplyKeyboardMarkup, KeyboardButton, \
     InlineKeyboardMarkup, InlineKeyboardButton
@@ -20,7 +19,8 @@ from aiogram.types import ReplyKeyboardRemove, \
 kb_start_1 = ReplyKeyboardMarkup(resize_keyboard=True)\
     .row('/subscribe', '/unsubscribe', '/list_sub')
 kb_start = ReplyKeyboardMarkup(resize_keyboard=True)\
-    .row('Подписаться', 'Отписаться', 'Список подписок')
+        .row('Подписаться', 'Отписаться')\
+        .add('Список подписок')
 
 from . import subs
 

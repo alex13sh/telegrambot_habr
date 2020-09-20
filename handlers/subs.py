@@ -35,7 +35,7 @@ class OrderSubs(StatesGroup):
     
 # Команда активации подписки
 @dp.message_handler(commands='subscribe', state='*')
-@dp.message_handler(lambda message: message.text == "Подписаться", state="*", content_types=types.ContentTypes.TEXT)
+@dp.message_handler(lambda message: message.text == "Подписаться", content_types=types.ContentTypes.TEXT)
 async def subscribe(message: types.Message):
     argument = message.get_args()
     if argument:
@@ -76,7 +76,7 @@ async def subscribe_name(message: types.Message, state: FSMContext):  # обра
     
 # Команда отписки
 @dp.message_handler(commands=['unsubscribe'])
-@dp.message_handler(lambda message: message.text == "Отписаться", state="*", content_types=types.ContentTypes.TEXT)
+@dp.message_handler(lambda message: message.text == "Отписаться", content_types=types.ContentTypes.TEXT)
 async def unsubscribe(message: types.Message):
     session = Session()
     if "reply_to_message" in message:
@@ -101,7 +101,7 @@ async def unsubscribe(message: types.Message):
         await message.reply("Ну и ладно!")
 
 @dp.message_handler(commands=['list_sub'])
-@dp.message_handler(lambda message: message.text == "Список подписок", state="*", content_types=types.ContentTypes.TEXT)
+@dp.message_handler(lambda message: message.text == "Список подписок", content_types=types.ContentTypes.TEXT)
 async def list_sub(message: types.Message):
     session = Session()
     txt = ""
