@@ -107,7 +107,12 @@ async def list_sub(message: types.Message):
     txt = ""
     for (sub_name,) in session.query(BD_Subs.sub_name).filter_by(user_id=message.from_user.id): 
         txt += "\n" + str(sub_name)
-    await message.answer("Список ваших подписок:" + txt)
+    inline_kb = types.InlineKeyboardMarkup().add(
+        types.InlineKeyboardButton(
+            'Посмотреть список!', 
+            switch_inline_query_current_chat='#subs'
+        ))
+    await message.answer("Список ваших подписок:" + txt, reply_markup=inline_kb)
     
     
 from aiogram.types import InlineQuery, \
