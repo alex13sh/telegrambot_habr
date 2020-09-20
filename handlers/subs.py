@@ -1,6 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from misc import dp
+from misc import dp, bot
 #from parser.stopgame import StopGame
 from db import Base, Session
 from db import Column, Integer, String
@@ -108,3 +108,26 @@ async def list_sub(message: types.Message):
     for (sub_name,) in session.query(BD_Subs.sub_name).filter_by(user_id=message.from_user.id): 
         txt += "\n" + str(sub_name)
     await message.answer("Список ваших подписок:" + txt)
+    
+    
+from aiogram.types import InlineQuery, \
+    InputTextMessageContent, InlineQueryResultArticle
+import hashlib
+
+@dp.inline_handler(lambda query: query.query == "#subs")
+async def list_sub(inline_query: InlineQuery):
+    session = Session()
+    text = inline_query.query
+    input_content = InputTextMessageContent(text)
+    items = []
+    for row in session.query(BD_Subs).filter_by(user_id=inline_query.from_user.id):
+        sub_name = row.sub_name
+        result_id: str = hashlib.md5(text.encode()).hexdigest()
+        item = InlineQueryResultArticle(
+            id=row.id,
+            title=f'Result {sub_name}',
+            input_message_content=InputTextMessageContent(sub_name),
+        )
+        items.append(item)
+        
+    await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
