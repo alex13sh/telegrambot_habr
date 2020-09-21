@@ -158,3 +158,11 @@ async def list_sub(inline_query: InlineQuery):
         items.append(item)
         
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
+    
+def is_sub(user_id, sub_name):
+    session = Session()
+    return len (session.query(BD_Subs).filter_by(user_id=user_id, sub_name=sub_name).all()) > 0
+
+def get_users_sub(sub_name):
+    session = Session()
+    return session.query(BD_Subs.user_id).filter_by(sub_name=sub_name).all()
