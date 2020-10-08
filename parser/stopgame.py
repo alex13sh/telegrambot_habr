@@ -108,6 +108,8 @@ sg = StopGame('lastkey.txt')
 
 import asyncio
 from misc import dp, bot
+from aiogram.types import InputFile
+
 from handlers.subs import get_users_sub
 # проверяем наличие новых игр и делаем рассылки
 #@dp.message()
@@ -133,17 +135,22 @@ async def scheduled(wait_for):
                 print("subs:", subscriptions)
 
                 # отправляем всем новость
-                with open(sg.download_image(nfo['image']), 'rb') as photo:
-                    print("Open Photo")
-                    for s in subscriptions:
-                        print("Send to user_id:", s)
-                        await asyncio.sleep(1)
-                        await bot.send_photo(
-                            s[0],
-                            photo,
-                            caption = nfo['title'] + "\n" + "Оценка: " + nfo['score'] + "\n" + nfo['excerpt'] + "\n\n" + nfo['link'],
-                            disable_notification = True
-                        )
+                #with open(sg.download_image(nfo['image']), 'rb') as photo:
+                #a = urlparse(nfo['image'])
+                #print("link a:", a)
+                #filename = + os.path.basename(a.path)
                 
+                photo = InputFile.from_url(nfo['image'])
+                print("Open Photo")
+                for s in subscriptions:
+                    print("Send to user_id:", s)
+                    await asyncio.sleep(1)
+                    await bot.send_photo(
+                        s[0],
+                        photo,
+                        caption = f"{nfo['title']}\nОценка: {nfo['score']}\n{nfo['excerpt']}\n\n{nfo['link']}",
+                        disable_notification = True
+                    )
+            
                 # обновляем ключ
                 sg.update_lastkey(nfo['id'])
