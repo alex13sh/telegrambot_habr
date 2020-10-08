@@ -1,1 +1,1 @@
-from . import stopgame
+from .StopGame import stopgame

@@ -3,20 +3,20 @@ import os.path
 import requests
 from bs4 import BeautifulSoup as BS
 from urllib.parse import urlparse
+import os
 
 class StopGame:
     host = 'https://stopgame.ru'
     url = 'https://stopgame.ru/review/new'
     lastkey = ""
-    lastkey_file = ""
+    lastkey_file = os.path.join( os.path.dirname(__file__), "./lastkey.txt")
 
-    def __init__(self, lastkey_file):
-        self.lastkey_file = lastkey_file
-
-        if(os.path.exists(lastkey_file)):
-            self.lastkey = open(lastkey_file, 'r').read()
+    def __init__(self):
+        
+        if(os.path.exists(self.lastkey_file)):
+            self.lastkey = open(self.lastkey_file, 'r').read()
         else:
-            f = open(lastkey_file, 'w')
+            f = open(self.lastkey_file, 'w')
             self.lastkey = self.get_lastkey()
             f.write(self.lastkey)
             f.close()
@@ -104,7 +104,7 @@ class StopGame:
 
         return new_key
 
-sg = StopGame('lastkey.txt')
+sg = StopGame()
 
 import asyncio
 from misc import dp, bot
