@@ -1,5 +1,5 @@
 from db import Base, Session, session
-from db import Column, Integer, String, Text
+from db import relationship, Column, Integer, String, Text
 
 from .base import BaseModel
 
@@ -10,6 +10,8 @@ class Parsers(BaseModel):
     url = Column(String(255))
     sub_type = Column(String(20), nullable=False)
     script = Column(String(50), nullable=False)
+    
+    subs = relationship(BD_Subs_SMS, backref = "parser", cascade='all,delete')
 
 def fill():
     session.add(Parsers(web_host='https://stopgame.ru', url='https://stopgame.ru/review/new', sub_type="game_new", script="./*/stopgame.py"))

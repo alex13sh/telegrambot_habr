@@ -31,11 +31,15 @@ def new_subs(user_id, sub_name, sms_id=None):
 class Subscribs(BaseModel):
     __tablename__ = 'Subscribs'
     
-    web_host = Column(String(50), nullable=False)
-    url = Column(String(255))
-    sub_type = Column(String(20), nullable=False)
+    parser_id = Column(ForeignKey('Parsers.id', ondelete='CASCADE'), nullable=False, index=True)
+    #web_host = Column(String(50), nullable=False)
+    #url = Column(String(255))
+    #sub_type = Column(String(20), nullable=False)
     sub_name = Column(String(50))
     last_title_id = Column(ForeignKey('Titles.id'), index=True)
+    
+    users = relationship("User_Sub", backref = "sub", cascade='all,delete')
+    titles = relationship("Titles", backref = "sub", cascade='all,delete')
     
 class User_Sub(BaseModel):
     __tablename__ = 'User_Sub'
@@ -48,8 +52,8 @@ class Titles(BaseModel):
     
     sub_id = Column(ForeignKey('Subscribs.id', ondelete='CASCADE'), nullable=False, index=True)
     url = Column(String(255), nullable=False)
-    image_url = Column(String(255))
-    #image_id 
+    
+    images = relationship("MediaCache", backref = "title", cascade='all,delete')
     title = Column(String(255), nullable=False)
     text = Column(Text, nullable=False)
     
