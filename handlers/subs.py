@@ -9,12 +9,11 @@ from . import kb as start
 
 def new_subs(user_id, sub_name, sms_id=None):
     row = BD_Subs(user_id=user_id, sub_name=sub_name)
+    if sms_id:
+        #session.add(BD_Subs_SMS(sms_id=sms_id, subs_id=row.id))
+        row.sms.append(BD_Subs_SMS(sms_id=sms_id))
     session.add(row)
     session.commit()
-    #session.refresh(row)
-    if sms_id:
-        session.add(BD_Subs_SMS(sms_id=sms_id, subs_id=row.id))
-        session.commit()
     
 from aiogram.dispatcher.filters.state import State, StatesGroup
 class OrderSubs(StatesGroup):
@@ -85,10 +84,11 @@ async def unsubscribe(message: types.Message):
         if len(res) > 0:
             row_1 = res[0]
             print("Result subs_id:", row_1.subs_id)
-            row_2 = session.query(BD_Subs).filter_by(id=row_1.subs_id).all()[0]
-            await message.answer("Удалил подписку: "+row_2.sub_name)
-            session.delete(row_2)
-            session.delete(row_1)
+            #row_2 = session.query(BD_Subs).filter_by(id=row_1.subs_id).all()[0]
+            await message.answer("Удалил подписку: "+row_1.sub.sub_name)
+            session.delete(row_1.sub)
+            #session.delete(row_1)
+            session.commit()
         else:
             await message.answer("Я не нашёл подписку")
     else:

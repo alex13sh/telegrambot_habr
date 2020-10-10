@@ -1,20 +1,23 @@
 from db import Base, session
-from db import ForeignKey, Column, Integer, String, Text
+from db import relationship, ForeignKey, Column, Integer, String, Text
 
 from .base import BaseModel
 
+class BD_Subs_SMS(Base):
+    __tablename__ = 'BD_Subs_SMS'
+    
+    sms_id = Column(Integer, primary_key=True)
+    subs_id = Column(ForeignKey('BD_Subs.id', ondelete='CASCADE'), nullable=False, index=True)
+
 class BD_Subs(Base):
     __tablename__ = 'BD_Subs'
+    
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer)
     sub_name = Column(String(255))
-    #sms_id = Column(Integer)
     
-class BD_Subs_SMS(Base):
-    __tablename__ = 'BD_Subs_SMS'
-    sms_id = Column(Integer, primary_key=True)
-    #subs_id = Column(Integer)
-    subs_id = Column(ForeignKey('BD_Subs.id', ondelete='CASCADE'), nullable=False, index=True)
+    sms = relationship(BD_Subs_SMS, backref = "sub", cascade='all,delete')
+    
     
 def new_subs(user_id, sub_name, sms_id=None):
     row = BD_Subs(user_id=user_id, sub_name=sub_name)
