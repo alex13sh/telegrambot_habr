@@ -2,24 +2,12 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from misc import dp, bot, LIST_SEARCH_TAGS
 #from parser.stopgame import StopGame
-from db import Base, Session
-from db import Column, Integer, String
+from db import session
+from database import BD_Subs, BD_Subs_SMS
 from . import kb as start
 
-class BD_Subs(Base):
-    __tablename__ = 'BD_Subs'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
-    sub_name = Column(String(255))
-    #sms_id = Column(Integer)
-    
-class BD_Subs_SMS(Base):
-    __tablename__ = 'BD_Subs_SMS'
-    sms_id = Column(Integer, primary_key=True)
-    subs_id = Column(Integer)
-    
+
 def new_subs(user_id, sub_name, sms_id=None):
-    session = Session()
     row = BD_Subs(user_id=user_id, sub_name=sub_name)
     session.add(row)
     session.commit()
@@ -92,7 +80,6 @@ async def subscribe_new(message: types.Message):  # обратите внима�
 @dp.message_handler(commands=['unsubscribe'])
 @dp.message_handler(lambda message: message.text == "Отписаться", content_types=types.ContentTypes.TEXT)
 async def unsubscribe(message: types.Message):
-    session = Session()
     if "reply_to_message" in message:
         res = session.query(BD_Subs_SMS).filter_by(sms_id=message["reply_to_message"]["message_id"]).all()
         if len(res) > 0:
@@ -117,7 +104,6 @@ async def unsubscribe(message: types.Message):
 @dp.message_handler(commands=['list_sub'])
 @dp.message_handler(lambda message: message.text == "Список подписок", content_types=types.ContentTypes.TEXT)
 async def list_sub(message: types.Message):
-    session = Session()
     txt = ""
     for (sub_name,) in session.query(BD_Subs.sub_name).filter_by(user_id=message.from_user.id): 
         txt += "\n" + str(sub_name)
@@ -143,7 +129,6 @@ def filter_query_subs(query):
 
 @dp.inline_handler(filter_query_subs)
 async def list_sub(inline_query: InlineQuery):
-    session = Session()
     _startwith = inline_query.query
     items = []
     for row in session.query(BD_Subs).filter_by(user_id=inline_query.from_user.id):
@@ -160,9 +145,7 @@ async def list_sub(inline_query: InlineQuery):
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
     
 def is_sub(user_id, sub_name):
-    session = Session()
     return len (session.query(BD_Subs).filter_by(user_id=user_id, sub_name=sub_name).all()) > 0
 
 def get_users_sub(sub_name):
-    session = Session()
     return session.query(BD_Subs.user_id).filter_by(sub_name=sub_name).all()
