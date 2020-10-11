@@ -3,17 +3,8 @@ from aiogram.dispatcher import FSMContext
 from misc import dp, bot, LIST_SEARCH_TAGS
 #from parser.stopgame import StopGame
 from db import session
-from database import BD_Subs, BD_Subs_SMS
+from database.Subscribts import BD_Subs
 from . import kb as start
-
-
-def new_subs(user_id, sub_name, sms_id=None):
-    row = BD_Subs(user_id=user_id, sub_name=sub_name)
-    if sms_id:
-        #session.add(BD_Subs_SMS(sms_id=sms_id, subs_id=row.id))
-        row.sms.append(BD_Subs_SMS(sms_id=sms_id))
-    session.add(row)
-    session.commit()
     
 from aiogram.dispatcher.filters.state import State, StatesGroup
 class OrderSubs(StatesGroup):
@@ -43,7 +34,7 @@ async def subscribe_website(message: types.Message, state: FSMContext):  # об�
         await message.answer("На кого хотите подписаться? Укажите имя:", reply_markup=start.ReplyKeyboardRemove())
     elif website == "StopGame":
         await state.finish()
-        new_subs(user_id=message.from_user.id, sub_name=f"{website}")
+        BD_Subs.new_subs(user_id=message.from_user.id, sub_name=f"{website}")
         await message.answer(f"Вы успешно подписались на рассылку! На сайт {website}", reply_markup=start.kb_start)
     else:
         await message.answer("Выберите комманду!")
@@ -54,7 +45,7 @@ async def subscribe_name(message: types.Message, state: FSMContext):  # обра
     website = data["website"]
     name = message.text
     sms = await message.answer(f"Вы успешно подписались на рассылку! На сайт {website} По имени: {name}", reply_markup=start.kb_start)
-    new_subs(
+    BD_Subs.new_subs(
         user_id=message.from_user.id, 
         sub_name=f"{website}_{name}",
         sms_id = sms["message_id"]
@@ -72,7 +63,7 @@ def filter_start_subs(message):
 @dp.message_handler(filter_start_subs, commands=['start']) #, text_startswith="start _subscribe=")
 async def subscribe_new(message: types.Message):  # обратите внимание, есть второй аргумент
     website = message.text
-    new_subs(user_id=message.from_user.id, sub_name=f"{website}")
+    BD_Subs.new_subs(user_id=message.from_user.id, sub_name=f"{website}")
     await message.answer(f"Вы успешно подписались на рассылку! На сайт {website}", reply_markup=start.kb_start)
 
 # Команда отписки
@@ -80,15 +71,8 @@ async def subscribe_new(message: types.Message):  # обратите внима�
 @dp.message_handler(lambda message: message.text == "Отписаться", content_types=types.ContentTypes.TEXT)
 async def unsubscribe(message: types.Message):
     if "reply_to_message" in message:
-        res = session.query(BD_Subs_SMS).filter_by(sms_id=message["reply_to_message"]["message_id"]).all()
-        if len(res) > 0:
-            row_1 = res[0]
-            print("Result subs_id:", row_1.subs_id)
-            #row_2 = session.query(BD_Subs).filter_by(id=row_1.subs_id).all()[0]
-            await message.answer("Удалил подписку: "+row_1.sub.sub_name)
-            session.delete(row_1.sub)
-            #session.delete(row_1)
-            session.commit()
+        if res := BD_Subs.del_subs_sms_id(sms_id=message["reply_to_message"]["message_id"]):
+            await message.answer("Удалил подписку: "+res.sub.sub_name)
         else:
             await message.answer("Я не нашёл подписку")
     else:
@@ -143,9 +127,3 @@ async def list_sub(inline_query: InlineQuery):
         items.append(item)
         
     await bot.answer_inline_query(inline_query.id, results=items, cache_time=1)
-    
-def is_sub(user_id, sub_name):
-    return len (session.query(BD_Subs).filter_by(user_id=user_id, sub_name=sub_name).all()) > 0
-
-def get_users_sub(sub_name):
-    return session.query(BD_Subs.user_id).filter_by(sub_name=sub_name).all()

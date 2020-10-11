@@ -110,12 +110,16 @@ import asyncio
 from misc import dp, bot
 from aiogram.types import InputFile
 
-from handlers.subs import get_users_sub
+from database.Subscribts import BD_Subs
 # проверяем наличие новых игр и делаем рассылки
 #@dp.message()
 async def scheduled(wait_for):
     while True:
         await asyncio.sleep(wait_for)
+        subscriptions = BD_Subs.get_users_sub("StopGame")
+        print("subs:", subscriptions)
+        if len(subscriptions) == 0: continue;
+    
         print("scheduled")
         # проверяем наличие новых игр
         new_games = sg.new_games()
@@ -129,16 +133,6 @@ async def scheduled(wait_for):
                 nfo = sg.game_info(ng)
                 print("Game Info:", nfo)
                 await asyncio.sleep(2)
-
-                # получаем список подписчиков бота
-                subscriptions = get_users_sub("StopGame")
-                print("subs:", subscriptions)
-
-                # отправляем всем новость
-                #with open(sg.download_image(nfo['image']), 'rb') as photo:
-                #a = urlparse(nfo['image'])
-                #print("link a:", a)
-                #filename = + os.path.basename(a.path)
                 
                 photo = InputFile.from_url(nfo['image'])
                 print("Open Photo")
