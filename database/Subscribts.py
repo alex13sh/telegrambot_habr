@@ -1,13 +1,15 @@
 from db import Base, session
-from db import relationship, ForeignKey, Column, Integer, String, Text
+from db import relationship, ForeignKey, column_property
+from db import Column, Integer, String, Text
 
-from .base import BaseModel
+from .base import BaseModel, MediaCache
 
 class BD_Subs_SMS(Base):
     __tablename__ = 'BD_Subs_SMS'
     
     sms_id = Column(Integer, primary_key=True)
     subs_id = Column(ForeignKey('BD_Subs.id', ondelete='CASCADE'), nullable=False, index=True)
+    sub = relationship("BD_Subs", back_poplates = "sms", cascade='all,delete')
 
 class BD_Subs(Base):
     __tablename__ = 'BD_Subs'
@@ -81,8 +83,3 @@ class Titles(BaseModel):
     title = Column(String(255), nullable=False)
     text = Column(Text, nullable=False)
     
-class MediaCache(BaseModel):
-    __tablename__ = 'MediaCache'
-    
-    url = Column(String(255), unique=True, nullable=False)
-    media_id = Column(String(255), nullable=False)
